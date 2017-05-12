@@ -1,5 +1,7 @@
+import _ from 'lodash';
 import { graphql as graphqlFunction } from "graphql"
 const fs = require(`fs`)
+const apiRunnerNode = require(`../utils/api-runner-node`)
 const Promise = require(`bluebird`)
 
 const writeFileAsync = Promise.promisify(fs.writeFile)
@@ -10,7 +12,11 @@ const { store } = require(`../redux`)
 module.exports = async (page, component) => {
   const { schema, program } = store.getState()
 
+  const customContext = _.merge(...(
+      await apiRunnerNode(`customGraphQLContext`)))
+
   const graphql = (query, context) => {
+    context = { ...context, ...customContext }
     return graphqlFunction(schema, query, context, context, context)
   }
 

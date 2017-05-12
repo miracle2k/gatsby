@@ -15,6 +15,8 @@ async function buildSchema() {
   const typesGQL = await buildNodeTypes()
   const connections = buildNodeConnections(_.values(typesGQL))
 
+  const customQueryFields = _.merge({}, ...(await apiRunner(`customGraphQLQueryTypes`)));
+
   const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
       name: `RootQueryType`,
@@ -23,9 +25,10 @@ async function buildSchema() {
         ..._.mapValues(typesGQL, `node`),
         ...connections,
         ...siteSchema(),
+        ...customQueryFields
       }),
     }),
-  })
+  });
 
   console.timeEnd(`building schema`)
   store.dispatch({

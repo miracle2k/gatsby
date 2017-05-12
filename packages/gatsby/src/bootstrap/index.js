@@ -201,8 +201,12 @@ data
   // Create Schema.
   await require(`../schema`)()
 
+  const customContext = _.merge(...(
+    await apiRunnerNode(`customGraphQLContext`)))
+
   const graphqlRunner = (query, context) => {
     const schema = store.getState().schema
+    context = { ...context, ...customContext }
     return graphql(schema, query, context, context, context)
   }
 
